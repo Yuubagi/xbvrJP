@@ -56,7 +56,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		// Tags
 		html.ForEach("div.row.movie span.genre > label > a", func(id int, anchor *colly.HTMLElement) {
 			href := anchor.Attr("href")
-			if strings.Contains(href, "javbus.com/en/genre/") {
+			if strings.Contains(href, "javbus.com/ja/genre/") {
 				// Tags
 				tag := ProcessJavrTag(anchor.Text)
 
@@ -69,7 +69,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		// Cast
 		html.ForEach("div.row.movie div.star-name > a", func(id int, anchor *colly.HTMLElement) {
 			href := anchor.Attr("href")
-			if strings.Contains(href, "javbus.com/en/star/") {
+			if strings.Contains(href, "javbus.com/ja/star/") {
 				sc.Cast = append(sc.Cast, anchor.Text)
 			}
 		})
@@ -93,7 +93,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 	// Allow comma-separated scene id's
 	scenes := strings.Split(queryString, ",")
 	for _, v := range scenes {
-		sceneCollector.Visit("https://www.javbus.com/en/" + strings.ToUpper(v) + "/")
+		sceneCollector.Visit("https://www.javbus.com/ja/" + strings.ToUpper(v) + "/")
 	}
 
 	sceneCollector.Wait()
