@@ -155,7 +155,7 @@ func ScrapeJavLibrary(out *[]models.ScrapedScene, queryString string) {
 	// Allow comma-separated scene id's
 	scenes := strings.Split(queryString, ",")
 	for _, v := range scenes {
-		sceneCollector.Visit("https://www.javlibrary.com/en/vl_searchbyid.php?keyword=" + strings.ToLower(v))
+		sceneCollector.Visit("https://www.javlibrary.com/ja/vl_searchbyid.php?keyword=" + strings.ToLower(v))
 	}
 
 	sceneCollector.Wait()
