@@ -24,11 +24,11 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		html.ForEach(`div.row.movie div.info > p`, func(id int, p *colly.HTMLElement) {
 			label := p.ChildText(`span.header`)
 
-			if label == `Studio:` {
+			if label == `メーカー:` {
 				// Studio
 				sc.Studio = p.ChildText(`a`)
 
-			} else if label == `ID:` {
+			} else if label == `品番:` {
 				// Title, SceneID and SiteID all like 'VRKM-821' format
 				idRegex := regexp.MustCompile("^([A-Za-z0-9]+)-([0-9]+)$")
 				p.ForEach("span", func(_ int, span *colly.HTMLElement) {
@@ -42,7 +42,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 					}
 				})
 
-			} else if label == `Release Date:` {
+			} else if label == `発売日:` {
 				// Release date
 				dateStr := p.Text
 				dateRegex := regexp.MustCompile("(\\d\\d\\d\\d-\\d\\d-\\d\\d)")
