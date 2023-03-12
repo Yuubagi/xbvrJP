@@ -24,7 +24,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		html.ForEach(`div.row.movie div.info > p`, func(id int, p *colly.HTMLElement) {
 			label := p.ChildText(`span.header`)
 
-			if label == `メーカー:` {
+			if label == `スタジオ:` {
 				// Studio
 				sc.Studio = p.ChildText(`a`)
 
