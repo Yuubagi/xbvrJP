@@ -73,10 +73,10 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		})
 
 		// Screenshots
-		html.ForEach("img[src]", func(_ int, img *colly.HTMLElement) {
-			src := img.Attr("src")
-			if strings.HasPrefix(src, "https://pics.dmm.co.jp/digital/video/") && strings.HasSuffix(src, ".jpg") {
-				sc.Gallery = append(sc.Gallery, src)
+		html.ForEach("a[href]", func(_ int, anchor *colly.HTMLElement) {
+			linkHref := anchor.Attr(`href`)
+			if strings.HasPrefix(linkHref, "https://pics.dmm.co.jp/digital/video/") && strings.HasSuffix(linkHref, `.jpg`) {
+				sc.Gallery = append(sc.Gallery, linkHref)
 			}
 		})
 
