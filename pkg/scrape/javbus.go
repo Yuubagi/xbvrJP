@@ -15,16 +15,10 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		sc := models.ScrapedScene{}
 		sc.SceneType = "VR"
 
-		// Always add 'javr' as a tag
-		sc.Tags = append(sc.Tags, `javr`)
-
-		// Always add 'javbus' as a tag
-		sc.Tags = append(sc.Tags, `javbus`)
-
 		html.ForEach(`div.row.movie div.info > p`, func(id int, p *colly.HTMLElement) {
 			label := p.ChildText(`span.header`)
 
-			if label == `スタジオ:` {
+			if label == `メーカー:` {
 				// Studio
 				sc.Studio = p.ChildText(`a`)
 
@@ -35,10 +29,10 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 					match := idRegex.FindStringSubmatch(span.Text)
 					if match != nil && len(match) > 2 {
 						dvdId := match[1] + "-" + match[2]
-						sc.Title = dvdId
 						sc.SceneID = dvdId
 						sc.SiteID = dvdId
 						sc.Site = match[1]
+
 					}
 				})
 
@@ -52,20 +46,24 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 				}
 			}
 		})
-
-		// Tags
-		html.ForEach("div.row.movie span.genre > label > a", func(id int, anchor *colly.HTMLElement) {
-			href := anchor.Attr("href")
-			if strings.Contains(href, "javbus.com/ja/genre/") {
-				// Tags
-				tag := ProcessJavrTag(anchor.Text)
-
-				if tag != "" {
-					sc.Tags = append(sc.Tags, tag)
-				}
-			}
+		//Japn Title
+		html.ForEach(`div.container > h3`, func(_ int, elem *colly.HTMLElement) {
+    			jpntitle := elem.Text
+			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
+			sc.Title = titleWithoutDvdId
 		})
+		// Genres
+		html.ForEach("div.row.movie span.genre > label > a", func(id int, anchor *colly.HTMLElement) {
+   			href := anchor.Attr("href")
+    			if strings.Contains(href, "javbus.com/ja/genre/") {
+        			// Genres
+        			genre := strings.TrimSpace(anchor.Text)
 
+        			if genre != "" {
+            			sc.Tags = append(sc.Tags, genre)
+        			}
+    			}
+		})
 		// Cast
 		html.ForEach("div.row.movie div.star-name > a", func(id int, anchor *colly.HTMLElement) {
 			href := anchor.Attr("href")
@@ -75,10 +73,10 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		})
 
 		// Screenshots
-		html.ForEach("a[href]", func(_ int, anchor *colly.HTMLElement) {
-			linkHref := anchor.Attr(`href`)
-			if strings.HasPrefix(linkHref, "https://pics.dmm.co.jp/digital/video/") && strings.HasSuffix(linkHref, `.jpg`) {
-				sc.Gallery = append(sc.Gallery, linkHref)
+		html.ForEach("img[src]", func(_ int, img *colly.HTMLElement) {
+			src := img.Attr("src")
+			if strings.HasPrefix(src, "https://pics.dmm.co.jp/digital/video/") && strings.HasSuffix(src, ".jpg") {
+				sc.Gallery = append(sc.Gallery, src)
 			}
 		})
 
