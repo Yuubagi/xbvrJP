@@ -32,6 +32,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 						sc.SceneID = dvdId
 						sc.SiteID = dvdId
 						sc.Site = match[1]
+						sc.Synopsis = dvdId
 
 					}
 				})
@@ -50,7 +51,8 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		html.ForEach(`div.container > h3`, func(_ int, elem *colly.HTMLElement) {
     			jpntitle := elem.Text
 			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
-			sc.Title = titleWithoutDvdId
+			titleWithoutVR := strings.ReplaceAll(titleWithoutDvdId, "【VR】", "")
+			sc.Title = titleWithoutVR
 		})
 		// Genres
 		html.ForEach("div.row.movie span.genre > label > a", func(id int, anchor *colly.HTMLElement) {
