@@ -9,7 +9,7 @@ import (
 )
 
 func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
-	sceneCollector := createCollector("www.javbus.com")
+	sceneCollector := createCollector("www.seejav.work")
 
 	sceneCollector.OnHTML(`html`, func(html *colly.HTMLElement) {
 		sc := models.ScrapedScene{}
@@ -57,7 +57,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		// Genres
 		html.ForEach("div.row.movie span.genre > label > a", func(id int, anchor *colly.HTMLElement) {
    			href := anchor.Attr("href")
-    			if strings.Contains(href, "javbus.com/ja/genre/") {
+    			if strings.Contains(href, "seejav.work/ja/genre/") {
         			// Genres
         			genre := strings.TrimSpace(anchor.Text)
 
@@ -69,7 +69,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 		// Cast
 		html.ForEach("div.row.movie div.star-name > a", func(id int, anchor *colly.HTMLElement) {
 			href := anchor.Attr("href")
-			if strings.Contains(href, "javbus.com/ja/star/") {
+			if strings.Contains(href, "seejav.work/ja/star/") {
 				sc.Cast = append(sc.Cast, anchor.Text)
 			}
 		})
@@ -93,7 +93,7 @@ func ScrapeJavBus(out *[]models.ScrapedScene, queryString string) {
 	// Allow comma-separated scene id's
 	scenes := strings.Split(queryString, ",")
 	for _, v := range scenes {
-		sceneCollector.Visit("https://www.javbus.com/ja/" + strings.ToUpper(v) + "/")
+		sceneCollector.Visit("https://www.seejav.work/ja/" + strings.ToUpper(v) + "/")
 	}
 
 	sceneCollector.Wait()
