@@ -74,7 +74,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 			}
 		})
 		//Japn Title
-		html.ForEach(`div.container > h3`, func(_ int, elem *colly.HTMLElement) {
+		html.ForEach("div.container-fluid div.row div.k-right div.container-fluid div.row div.col-xs-12 strong span.glyphicon.glyphicon-film", func(_ int, elem *colly.HTMLElement) {
     			jpntitle := elem.Text
 			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
 			titleWithoutVR := strings.ReplaceAll(titleWithoutDvdId, "【VR】", "")
@@ -90,14 +90,6 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				sc.Gallery = append(sc.Gallery, linkHref)
 			}
 		})
-
-		// Synopsis
-		title := html.DOM.Find("title")
-		if title != nil && title.Length() == 1 {
-			descr := title.Text()
-			descr = strings.ReplaceAll(descr, "- JAV.Land", "")
-			sc.Synopsis = descr
-		}
 
 		// Apply post-processing for error-correcting code
 		PostProcessJavScene(&sc, contentId)
