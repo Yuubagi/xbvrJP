@@ -16,12 +16,6 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 		sc.SceneType = "VR"
 		contentId := ""
 
-		// Always add 'javr' as a tag
-		sc.Tags = append(sc.Tags, `javr`)
-
-		// Always add 'jav.land' as a tag
-		sc.Tags = append(sc.Tags, `jav.land`)
-
 		html.ForEach(`table.videotextlist tr`, func(id int, tr *colly.HTMLElement) {
 			tds := tr.DOM.Children()
 			if tds.Length() != 2 {
@@ -30,7 +24,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 			label := tds.First().Text()
 			value := tds.Last().Text()
 
-			if label == `Maker:` {
+			if label == `メーカー:` {
 				// Studio
 				sc.Studio = value
 
@@ -47,12 +41,12 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 					sc.Site = siteParts[0]
 				}
 
-			} else if label == `Release Date:` {
+			} else if label == `発売日:` {
 				// Release date
 				tmpDate, _ := goment.New(strings.TrimSpace(value), "YYYY-MM-DD")
 				sc.Released = tmpDate.Format("YYYY-MM-DD")
 
-			} else if label == `Genre(s):` {
+			} else if label == `ジャンル:` {
 				// Tags
 				tr.ForEach("span.genre > a", func(id int, anchor *colly.HTMLElement) {
 					href := anchor.Attr("href")
@@ -66,7 +60,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 					}
 				})
 
-			} else if label == `Cast:` {
+			} else if label == `出演者:` {
 				// Tags
 				tr.ForEach("span.star > a", func(id int, anchor *colly.HTMLElement) {
 					href := anchor.Attr("href")
@@ -75,7 +69,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 					}
 				})
 
-			} else if label == `Content ID:` {
+			} else if label == `品番:` {
 				contentId = value
 			}
 		})
