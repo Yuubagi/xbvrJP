@@ -31,9 +31,9 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 			} else if label == `DVD ID:` {
 				// Title, SceneID and SiteID all like 'VRKM-821' format
 				dvdId := strings.ToUpper(value)
-				sc.Title = dvdId
 				sc.SceneID = dvdId
 				sc.SiteID = dvdId
+				sc.Synopsis = dvdId
 
 				// Set 'Site' to first part of the ID (e.g. `VRKM for `vrkm-821`)
 				siteParts := strings.Split(dvdId, `-`)
@@ -73,8 +73,14 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				contentId = value
 			}
 		})
+		//Japn Title
+		html.ForEach(`div.container > h3`, func(_ int, elem *colly.HTMLElement) {
+    			jpntitle := elem.Text
+			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
+			titleWithoutVR := strings.ReplaceAll(titleWithoutDvdId, "【VR】", "")
+			sc.Title = titleWithoutVR
 
-		// Screenshots
+        // Screenshots
 		html.ForEach("a[href]", func(_ int, anchor *colly.HTMLElement) {
 			linkHref := anchor.Attr(`href`)
 			if strings.HasPrefix(linkHref, "https://pics.vpdmm.cc/") && strings.HasSuffix(linkHref, `.jpg`) {
