@@ -74,7 +74,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 			}
 		})
 		//Japn Title
-		html.ForEach("div.container-fluid div.row div.k-right div.container-fluid div.row div.col-xs-12 strong span.glyphicon.glyphicon-film", func(_ int, elem *colly.HTMLElement) {
+		html.ForEach(".glyphicon-film", func(_ int, elem *colly.HTMLElement) {
     			jpntitle := elem.Text
 			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
 			titleWithoutVR := strings.ReplaceAll(titleWithoutDvdId, "【VR】", "")
