@@ -36,11 +36,8 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				sc.Synopsis = dvdId
 
 				// Set 'Site' to first part of the ID (e.g. `VRKM for `vrkm-821`)
-				siteParts := strings.Split(dvdId, `-`)
-				if len(siteParts) > 0 {
-					sc.Site = siteParts[0]
-				}
-
+				sc.Site = FANZA
+			
 			} else if label == `発売日:` {
 				// Release date
 				tmpDate, _ := goment.New(strings.TrimSpace(value), "YYYY-MM-DD")
@@ -48,15 +45,10 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 
 			} else if label == `ジャンル:` {
 				// Tags
-				tr.ForEach("span.genre > a", func(id int, anchor *colly.HTMLElement) {
-					href := anchor.Attr("href")
-					if strings.Contains(href, "/genre/") {
-						// Tags
-						tag := ProcessJavrTag(anchor.Text)
-
-						if tag != "" {
-							sc.Tags = append(sc.Tags, tag)
-						}
+				c.OnHTML("div.movie-genre a", func(e *colly.HTMLElement) {
+				genre := e.Text
+				if genre != "" {
+					tags = append(tags, genre)
 					}
 				})
 
