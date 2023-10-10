@@ -16,6 +16,12 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 		sc.SceneType = "VR"
 		contentId := ""
 
+		// Always add 'javr' as a tag
+		sc.Tags = append(sc.Tags, `javr`)
+
+		// Always add 'jav.land' as a tag
+		sc.Tags = append(sc.Tags, `jav.land`)
+
 		html.ForEach(`table.videotextlist tr`, func(id int, tr *colly.HTMLElement) {
 			tds := tr.DOM.Children()
 			if tds.Length() != 2 {
@@ -24,35 +30,29 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 			label := tds.First().Text()
 			value := tds.Last().Text()
 
-			if label == `メーカー:` {
+			if label == `Maker:` {
 				// Studio
 				sc.Studio = value
 
 			} else if label == `DVD ID:` {
 				// Title, SceneID and SiteID all like 'VRKM-821' format
 				dvdId := strings.ToUpper(value)
+				sc.Title = dvdId
 				sc.SceneID = dvdId
 				sc.SiteID = dvdId
-				sc.Synopsis = dvdId
 
 				// Set 'Site' to first part of the ID (e.g. `VRKM for `vrkm-821`)
-				sc.Site = FANZA
-			
-			} else if label == `発売日:` {
+				siteParts := strings.Split(dvdId, `-`)
+				if len(siteParts) > 0 {
+					sc.Site = siteParts[0]
+				}
+
+			} else if label == `Release Date:` {
 				// Release date
 				tmpDate, _ := goment.New(strings.TrimSpace(value), "YYYY-MM-DD")
 				sc.Released = tmpDate.Format("YYYY-MM-DD")
 
-			} else if label == `ジャンル:` {
-				// Tags
-				c.OnHTML("div.movie-genre a", func(e *colly.HTMLElement) {
-				genre := e.Text
-				if genre != "" {
-					tags = append(tags, genre)
-					}
-				})
-
-			} else if label == `出演者:` {
+			} else if label == `Cast:` {
 				// Tags
 				tr.ForEach("span.star > a", func(id int, anchor *colly.HTMLElement) {
 					href := anchor.Attr("href")
@@ -61,18 +61,33 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 					}
 				})
 
-			} else if label == `品番:` {
+			} else if label == `Content ID:` {
 				contentId = value
 			}
 		})
-		//Japn Title
-		html.ForEach(".glyphicon-film", func(_ int, elem *colly.HTMLElement) {
-    			jpntitle := elem.Text
-			titleWithoutDvdId := strings.ReplaceAll(jpntitle, sc.SceneID + " ", "")
-			titleWithoutVR := strings.ReplaceAll(titleWithoutDvdId, "【VR】", "")
-			sc.Title = titleWithoutVR
+		
+		
+		// ジャンル情報の抽出
+		genreInfo := html.DOM.Find("p:contains('ジャンル:')")
+		if genreInfo != nil && genreInfo.Length() == 1 {
+			// ジャンル情報のテキストを取得
+			genreText := genreInfo.Text()
 
-        // Screenshots
+			// カンマで分割してジャンルをリストに格納
+			genreText = strings.TrimPrefix(genreText, "ジャンル:")
+			genreList := strings.Split(genreText, ",")
+
+			// 各ジャンルを処理
+			for _, genre := range genreList {
+				genre := strings.TrimSpace(genre)
+				// ジャンル情報を処理するコードをここに追加
+
+				// ジャンル情報を sc.Tags に追加
+				sc.Tags = append(sc.Tags, genre)
+			}
+		}
+
+		// Screenshots
 		html.ForEach("a[href]", func(_ int, anchor *colly.HTMLElement) {
 			linkHref := anchor.Attr(`href`)
 			if strings.HasPrefix(linkHref, "https://pics.vpdmm.cc/") && strings.HasSuffix(linkHref, `.jpg`) {
@@ -82,6 +97,14 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				sc.Gallery = append(sc.Gallery, linkHref)
 			}
 		})
+
+		// Synopsis
+		title := html.DOM.Find("title")
+		if title != nil && title.Length() == 1 {
+			descr := title.Text()
+			descr = strings.ReplaceAll(descr, "- JAV.Land", "")
+			sc.Synopsis = descr
+		}
 
 		// Apply post-processing for error-correcting code
 		PostProcessJavScene(&sc, contentId)
@@ -94,7 +117,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 	// Allow comma-separated scene id's
 	scenes := strings.Split(queryString, ",")
 	for _, v := range scenes {
-		sceneCollector.Visit("https://jav.land/ja/id_search.php?keys=" + strings.ToLower(v))
+		sceneCollector.Visit("https://jav.land/en/id_search.php?keys=" + strings.ToLower(v))
 	}
 
 	sceneCollector.Wait()
