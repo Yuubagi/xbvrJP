@@ -50,7 +50,7 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				// Tags
 				tr.ForEach("span.genre > a", func(id int, anchor *colly.HTMLElement) {
 					href := anchor.Attr("href")
-					if strings.Contains(href, "jav.land/ja/genre/") {
+					if strings.Contains(href, "/genre/") {
 						// Tags
 						tag := ProcessJavrTag(anchor.Text)
 
