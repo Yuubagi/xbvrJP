@@ -50,15 +50,10 @@ func ScrapeJavLand(out *[]models.ScrapedScene, queryString string) {
 				// Tags
 				tr.ForEach("span.genre > a", func(id int, anchor *colly.HTMLElement) {
 					href := anchor.Attr("href")
-					if strings.Contains(href, "/genre/") {
-						// Tags
-						tag := ProcessJavrTag(anchor.Text)
-
-						if tag != "" {
-							sc.Tags = append(sc.Tags, tag)
-						}
-					}
-				})
+    					if strings.Contains(href, "/genre/") {
+						sc.Tags = append(sc.Tags, anchor.Text)
+    						}
+					})
 
 			} else if label == `出演者:` {
 				// Tags
